@@ -1,6 +1,7 @@
 package com.test.jwt.config;
 
 
+import com.test.jwt.entity.User;
 import com.test.jwt.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,16 +21,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class AppConfig {
 
     private final UserRepo userRepo;
+
     @Bean
-    public UserDetailsService userDetailsService(){
-        return username -> (UserDetails) userRepo.findByName(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+    public UserDetailsService userDetailsService() {
+        return username -> {
+            User user = userRepo.findByName(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+            return new MyUserDetails(user);
+        };
     }
+
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
-        return  authProvider;
+        return authProvider;
     }
 
     @Bean
@@ -41,6 +45,6 @@ public class AppConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return  config.getAuthenticationManager();
+        return config.getAuthenticationManager();
     }
 }

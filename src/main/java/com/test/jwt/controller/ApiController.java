@@ -2,6 +2,7 @@ package com.test.jwt.controller;
 
 import com.test.jwt.config.JwtService;
 
+import com.test.jwt.config.MyUserDetails;
 import com.test.jwt.dto.AuthenticationRequest;
 import com.test.jwt.dto.AuthenticationResponse;
 import com.test.jwt.dto.UserDto;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +48,8 @@ public class ApiController {
                     .build();
 
                     userRepo.save(user);
-            var jwtToken= jwtService.generateToken(user);
+            MyUserDetails myUserDetails = new MyUserDetails(user);
+            var jwtToken= jwtService.generateToken(myUserDetails);
             AuthenticationResponse auth= AuthenticationResponse.builder()
                     .token(jwtToken)
                     .build();
@@ -65,8 +66,8 @@ public class ApiController {
                )
        );
         var user=userRepo.findByName(authenticationRequest.getName()).orElseThrow(() -> new UsernameNotFoundException("User not Found"));
-
-        var jwtToken= jwtService.generateToken(user);
+        MyUserDetails myUserDetails = new MyUserDetails(user);
+        var jwtToken= jwtService.generateToken(myUserDetails);
         AuthenticationResponse auth= AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
