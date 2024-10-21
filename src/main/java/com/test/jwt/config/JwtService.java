@@ -7,7 +7,11 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +19,14 @@ import java.util.function.Function;
 
 @Service
 public class JwtService{
-    private static final String SECRET_KEY="b6ad195a3d144fa3686b92b82b2f42094f534a89b7e6b45e593def6500e4dd5c";
+    private String SECRET_KEY="";
+
+    public JwtService() throws NoSuchAlgorithmException {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
+        SecretKey sk =  keyGenerator.generateKey();
+        SECRET_KEY = Base64.getEncoder().encodeToString(sk.getEncoded());
+    }
+
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
     }
@@ -31,11 +42,13 @@ public class JwtService{
     public String generateToken(Map<String, Object> extraClaims, MyUserDetails myUserDetails){
         return Jwts
                 .builder()
-                .setClaims(extraClaims)
-                .setSubject(myUserDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .claims()
+                .add(extraClaims)
+                .subject(myUserDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .and()
+                .signWith(getSignInKey())
                 .compact();
     }
 
@@ -54,15 +67,16 @@ public class JwtService{
 
     private Claims extractAllClaims(String token){
         return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignInKey())
+                .parser()
+                .verifyWith(getSignInKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
     }
 
-    private Key getSignInKey() {
+    private SecretKey getSignInKey() {
+
         byte[]keyBytes= Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
