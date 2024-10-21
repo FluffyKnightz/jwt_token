@@ -34,7 +34,7 @@ public class ApiController {
     private final AuthenticationManager manager;
     private final MyUserDetailsService myUserDetailsService;
 
-    @PostMapping("userCreate")
+    @PostMapping("/userCreate")
     public ResponseEntity<HttpStatus> createUser(@RequestBody UserDto userDto) {
 
         User user = User.builder()
@@ -50,7 +50,7 @@ public class ApiController {
 
     }
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest) {
         manager.authenticate(
                 new UsernamePasswordAuthenticationToken(
