@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form id="login-form">
+    Username : <label>
+    <input type="text" name="name">
+</label>
+
+    Password : <label>
+    <input type="password" name="password">
+</label>
+
+    <button type="submit">Login</button>
+</form>
+</body>
+<script>
+
+    const json = {};
+    const form = document.getElementById("login-form");
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        formData.forEach((value, key) => {
+            json[key] = value;
+        });
+
+        login(json);
+    });
+
+    async function login(data) {
+        const response = await fetch('akz/api/v1/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        const result = await response.json();
+        console.log(result)
+
+        setCookie('jwtToken', result.token, 1);
+        window.location.href="/home";
+    }
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Expire after 'days'
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict";
+    }
+
+
+
+</script>
+</html>

@@ -9,6 +9,7 @@ import com.test.jwt.dto.UserDto;
 import com.test.jwt.entity.Role;
 import com.test.jwt.entity.User;
 import com.test.jwt.repository.UserRepo;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
@@ -51,7 +52,7 @@ public class ApiController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response) {
         manager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getName(),
@@ -63,6 +64,8 @@ public class ApiController {
         AuthenticationResponse auth = AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+
+
         return ResponseEntity.ok(auth);
     }
 
