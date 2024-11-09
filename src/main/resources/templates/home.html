@@ -20,14 +20,9 @@
 
     async function demo() {
 
-        // Example: Get JWT token from the cookie
-        const token = getCookie('jwtToken');
-
-
         const response = await fetch('/demo', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             }
         })

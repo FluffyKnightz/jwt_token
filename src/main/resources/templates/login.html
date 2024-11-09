@@ -13,6 +13,7 @@
     Password : <label>
     <input type="password" name="password">
 </label>
+    Remember Me : <label for="rememberMe"><input type="checkbox" id="rememberMe" name="rememberMe"/></label>
 
     <button type="submit">Login</button>
 </form>
@@ -24,13 +25,17 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+        
 
-        const formData = new FormData(form);
-
-        formData.forEach((value, key) => {
-            json[key] = value;
+        form.querySelectorAll('input').forEach(input => {
+            if (input.type === 'checkbox') {
+                json[input.name] = input.checked; // Set true or false for checkbox
+            } else {
+                json[input.name] = input.value; // Set value for text and password fields
+            }
         });
 
+        console.log(json);
         login(json);
     });
 
@@ -41,25 +46,12 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data)
-        })
+        });
+
         const result = await response.json();
-        console.log(result)
-
-        setCookie('jwtToken', result.token, 1);
-        window.location.href="/home";
+        console.log(result);
+        window.location.href = "/home";
     }
-
-    function setCookie(name, value, days) {
-        let expires = "";
-        if (days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Expire after 'days'
-            expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict";
-    }
-
-
 
 </script>
 </html>

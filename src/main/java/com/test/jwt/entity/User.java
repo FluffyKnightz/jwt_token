@@ -28,7 +28,7 @@ public class User implements Serializable {
 	private String password;
 
 	@Enumerated(EnumType.STRING)
-	@Column(columnDefinition = "VARCHAR(6)", nullable =  false)
+	@Column(columnDefinition = "VARCHAR(10)", nullable =  false)
 	private Role role;
 
 }
